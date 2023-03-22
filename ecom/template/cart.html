@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'msg.html' %}
+{% load static %}
+
+<div class="flex">
+    <div class="flex px-32 py-11">
+        <h2 class="text-4xl text-gray-800 font-medium">My Cart
+            {% if order.0.items.count %}
+            ({{ order.0.items.count }})
+            {% endif %}
+        </h2>
+    </div>
+</div>
+{% if order %}
+<div class="flex justify-between gap-12 mx-16  ">
+    <div class="flex flex-col w-8/12 ">
+        
+        {% for order_item in order.0.items.all %}
+        <div class="flex border rounded-br-lg shadow-sm hover:shadow-lg rounded-tl-lg mb-3 ">
+            <div class="flex h-52">
+                <div class="flex w-2/12 ">
+                    <img src="{{ order_item.item.image.url }}" class="" style="object-fit: contain;"
+                        alt="">
+                </div>
+                <div class="flex flex-col w-10/12 p-1 ">
+                    <h2 class="text-xl font-semibold text-gray-800">{{ order_item.item.name }}</h2>
+                    <div class="flex">
+                        <p class="text-gray-600 py-1">Category: {{ order_item.item.category.title }}</p>
+                    </div>
+                    <div class="flex">
+                        {% if order_item.item.discount_price %}
+                        <h4 class="text-2xl font-bold text-slate-900">₹{{ order_item.get_discount_price }}
+                            <del class="text-xl font-thin px-2 text-slate-500">₹{{ order_item.get_price }}</del>
+                        </h4>
+                        <span class="text-xl text-lime-600">Saving: {{ order_item.item.getSavingPercent }}%</span>
+                        {% else %}
+                        <h4 class="text-2xl font-bold text-slate-900">₹{{ order_item.get_price }}</h4>
+                        {% endif %}
+                    </div>
+                    <div class="py-3">
+                        <a href="{% url 'removeCart' order_item.item.slug %}"
+                            class="px-4 py-1  hover:bg-rose-700 bg-rose-600 text-white font-bold rounded-lg mr-2">-</a>
+                        <span class="">{{ order_item.qty }}</span>
+                        <a href="{% url 'addCart' order_item.item.slug %}"
+                            class="px-4 py-1 hover:bg-lime-700 bg-lime-600 text-white font-bold rounded-lg mr-2">+</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class=" w-4/12">
+        <table class="" width="100%">
+            <tr class="border-t-2">
+                <th>Total Amount</th>
+                <td>₹{{ order.0.get_total_amount }}</td>
+            </tr>
+            <tr class="border-t-2">
+                <th>total Tax (18% GST)</th>
+                <td>₹{{ order.0.get_tax_amount }}</td>
+            </tr>
+            <tr class=" bg-cyan-500 border-t-2">
+                <th>Total Discount</th>
+                <td>₹{{ order.0.get_discount_amount }}</td>
+            </tr>
+
+            {% if order.0.coupon%}
+            <tr class="bg-yellow-500 my-7 text-black">
+                <th>Coupon Discount
+                    <div class="d-flex mt-2 text-red-600 gap-2">
+                        Code: {{ order.0.coupon.code }} <a href="{% url 'removeCoupon' %}"
+                            class="text-danger small">remove</a>
+                    </div>
+                </th>
+                <td class="text-red-500">₹{{ order.0.coupon.amount }}
+                </td>
+            </tr>
+            {% endif %}
+            <tr class="border-t-3 border-b-4">
+                <th>Total Payable Amount</th>
+                <td class="h4">₹{{ order.0.get_payable_amount }}</td>
+            </tr>
+        </table>
+
+        {% if not order.coupon %}
+        <div class="flex  mt-5">
+            <form action="{% url 'addCoupon' %}" method="post" class="">
+                {% csrf_token %}
+            
+                <div class="flex bg-lime-100 px-4 py-2 mt-4">
+                    <input type="text" name="code" size="70" class="w-10/12 rounded-tl-lg rounded-bl-lg" placeholder="Enter code">
+                    <input type="submit" value="Go" class="bg-rose-500 hover:bg-rose-700 text-white rounded-br-lg rounded-tr-lg w-2/12 " >
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        <div class="flex mt-6 flex-col text-center  gap-2">
+            <a href="{% url 'homepage' %}" class="text-white hover:shadow-gray-200  hover:shadow-lg bg-green-500 hover:bg-green-600  px-4 py-3 rounded">Go Back</a>
+            <a href="{% url 'checkout' %}" class="text-white hover:shadow-rose-200 hover:shadow-lg bg-rose-500  hover:bg-rose-600 px-4 py-3 rounded">Checkout</a>
+        </div>
+    </div>
+
+</div>
+{% else%}
+<div class="flex  gap-3 justify-center">
+    
+        <h1 class="text-5xl" style="font-weight:bolder;color:lightgray">Empty Cart</h1>
+        <img src="{% static 'sad.gif' %}" alt="">
+   
+</div>
+
+{% endif %}
+
+{% endblock content %}

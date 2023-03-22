@@ -1,0 +1,9 @@
+{% comment %} <h1>gasfdasfasd</h1> {% endcomment %}
+
+{% if messages %}
+<ul class="messages mb-2">
+    {% for message in messages %}
+    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
